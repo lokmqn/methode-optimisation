@@ -1,0 +1,51 @@
+import pulp
+import random
+
+poid = [2,3,6,7,5,9,4]
+value = [10,7,25,24,15,30,9]
+max_weight = 15
+n=len(value)
+
+print(f'Number of items: {n} and max weight: {max_weight}')
+
+prob=pulp.LpProblem("Knapsack",pulp.LpMaximize)
+x=[pulp.LpVariable(f'x{i}',0,1,pulp.LpInteger) for i in range(n)]
+prob+=pulp.lpSum([value[i]*x[i] for i in range(n)]) , "total_value"
+
+#contraints
+prob+=pulp.lpSum([poid[i]*x[i] for i in range(n)]) <= max_weight
+
+prob.solve()
+print("Status:",pulp.LpStatus[prob.status])
+print("Best value for Z ",pulp.value(prob.objective))
+print("Selected items:")
+items_choisies= []
+poid_total = 0
+for i in range(n):
+    if x[i].varValue==1:
+        print(f'Item {i+1} with weight {poid[i]} and value {value[i]}')
+        items_choisies.append(i)
+        poid_total += poid[i]
+        
+print(f"Total weight: {poid_total}")
+
+
+print("\n start aco algorithm")
+
+n_ants = 10
+n_iterations = 100
+alpha = 1
+beta = 2
+rho = 0.1
+Q = 100
+
+pheromone = [1]*n
+
+eta = []
+for i in range(n):
+    densite = value[i]/(poid[i] + 0.000001)
+    eta.append(densite)
+
+    print("phéromone is ready: ", pheromone)
+    print(f"phéromone intial {pheromone}")
+    print(f"Heuristic (Eta) :{eta}")
